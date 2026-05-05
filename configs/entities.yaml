@@ -1,0 +1,451 @@
+# Curated entity / theme -> beneficiary tickers mapping.
+#
+# Each top-level key is a theme name. Each theme has:
+#   keywords: list of synonyms / phrases that trigger this theme on substring match
+#   beneficiaries: list of tickers with a short mechanism note + a prior confidence
+#   current_context (OPTIONAL): hand-written narrative about the sector's current
+#     situation, especially events the LLM may not know about due to its training
+#     cutoff. Injected into hypothesis-generation prompts as informational context
+#     so the LLM can REASON about it (and override with a contrarian thesis if
+#     warranted) rather than being mechanically blocked. Update as you notice
+#     sector dynamics the LLM keeps missing.
+#
+# Confidence is a *prior*, not a probability of profit -- it reflects how cleanly
+# the ticker maps to the theme (1.0 = pure-play, 0.5 = partial exposure).
+#
+# This is a starter set. Expand freely as you discover new event categories.
+# When two themes match the same text, beneficiaries are unioned (max confidence
+# wins for tickers in multiple themes).
+
+fertilizer:
+  keywords: [fertilizer, fertilizers, fertiliser, "agricultural chemicals", agchem, "potash", "nitrogen fertilizer", "phosphate"]
+  beneficiaries:
+    - {ticker: CF,  name: "CF Industries Holdings", mechanism: "nitrogen fertilizer producer (urea, ammonia)", confidence: 0.95}
+    - {ticker: MOS, name: "Mosaic Company",         mechanism: "phosphate and potash producer",                 confidence: 0.95}
+    - {ticker: NTR, name: "Nutrien Ltd",            mechanism: "largest potash + nitrogen producer globally",   confidence: 0.95}
+    - {ticker: IPI, name: "Intrepid Potash",        mechanism: "US-domestic potash producer",                   confidence: 0.85}
+    - {ticker: SMG, name: "Scotts Miracle-Gro",     mechanism: "consumer lawn / garden fertilizer",             confidence: 0.55}
+
+solar:
+  keywords: [solar, "solar panel", "solar panels", photovoltaic, "PV module", "rooftop solar", "utility-scale solar"]
+  beneficiaries:
+    - {ticker: FSLR, name: "First Solar",         mechanism: "US thin-film utility-scale solar modules",     confidence: 0.95}
+    - {ticker: ENPH, name: "Enphase Energy",      mechanism: "residential solar microinverters + batteries", confidence: 0.90}
+    - {ticker: SEDG, name: "SolarEdge",           mechanism: "residential solar inverters",                  confidence: 0.85}
+    - {ticker: RUN,  name: "Sunrun",              mechanism: "residential solar installer",                  confidence: 0.85}
+    - {ticker: NOVA, name: "Sunnova Energy",      mechanism: "residential solar installer",                  confidence: 0.80}
+
+ev:
+  keywords: ["electric vehicle", "electric vehicles", " ev ", "EVs", "battery electric", "plug-in vehicle"]
+  current_context: |
+    EV demand growth slowed sharply in 2024-2025 vs Street expectations. Tesla
+    deliveries flat-to-down. Rivian/Lucid burning cash with widening losses.
+    Legacy OEMs (F, GM) walked back EV capex through 2024-2025. New EV-related
+    catalysts should be weighed against this softness backdrop, not against the
+    pre-2024 hyper-growth narrative.
+  beneficiaries:
+    - {ticker: TSLA, name: "Tesla",     mechanism: "largest US EV maker",                      confidence: 0.90}
+    - {ticker: RIVN, name: "Rivian",    mechanism: "EV truck/van pure-play",                   confidence: 0.95}
+    - {ticker: LCID, name: "Lucid",     mechanism: "EV luxury sedan pure-play",                confidence: 0.95}
+    - {ticker: F,    name: "Ford",      mechanism: "legacy OEM with EV exposure (F-150 Lightning, Mach-E)", confidence: 0.40}
+    - {ticker: GM,   name: "GM",        mechanism: "legacy OEM with EV exposure (Ultium platform)",        confidence: 0.40}
+
+lithium:
+  keywords: [lithium, "lithium mining", "lithium battery", "battery materials"]
+  beneficiaries:
+    - {ticker: ALB,  name: "Albemarle",  mechanism: "largest lithium producer in the West",      confidence: 0.95}
+    - {ticker: SQM,  name: "Sociedad Química y Minera", mechanism: "Chilean lithium / specialty chemicals", confidence: 0.85}
+    - {ticker: PLL,  name: "Piedmont Lithium", mechanism: "US lithium development",              confidence: 0.85}
+    - {ticker: LAC,  name: "Lithium Americas", mechanism: "Thacker Pass lithium project (US)",   confidence: 0.85}
+
+semiconductors:
+  keywords: [semiconductor, semiconductors, semis, chip, chips, "chip manufacturing", "fabless", "foundry"]
+  current_context: |
+    Sector ripped through 2024-2026 on AI capex narrative. Semicap (ASML, AMAT,
+    LRCX) and AI accelerator names (NVDA, AVGO, AMD) up 80-200%+ over 2024-2025.
+    Memory cycle (MU) bottomed mid-2024 and is recovering. Valuations stretched
+    on most names (NVDA fwd P/E ~35x, ASML ~30x). Mean-reversion strategies on
+    momentum names risk catching falling knives if the AI capex thesis cracks.
+    Trend-following has worked but is late-stage; new bullish theses should weigh
+    valuation extension against genuine secular demand.
+  beneficiaries:
+    - {ticker: NVDA, name: "Nvidia",                 mechanism: "GPUs for AI / gaming / data center",           confidence: 0.90}
+    - {ticker: AMD,  name: "AMD",                    mechanism: "CPUs / GPUs / data center accelerators",        confidence: 0.85}
+    - {ticker: TSM,  name: "Taiwan Semiconductor",   mechanism: "leading-edge foundry (Apple, Nvidia, AMD)",    confidence: 0.95}
+    - {ticker: AVGO, name: "Broadcom",               mechanism: "networking / custom AI ASICs",                  confidence: 0.80}
+    - {ticker: INTC, name: "Intel",                  mechanism: "x86 CPUs + foundry buildout",                   confidence: 0.80}
+    - {ticker: ASML, name: "ASML",                   mechanism: "EUV lithography monopoly",                      confidence: 0.95}
+    - {ticker: AMAT, name: "Applied Materials",      mechanism: "semicap equipment",                             confidence: 0.85}
+    - {ticker: LRCX, name: "Lam Research",           mechanism: "semicap equipment (etch / deposition)",         confidence: 0.85}
+    - {ticker: MU,   name: "Micron",                 mechanism: "DRAM / NAND memory",                            confidence: 0.85}
+
+ai_infra:
+  keywords: ["AI infrastructure", "artificial intelligence infrastructure", "AI accelerator", "AI chip", "AI compute", "data center build"]
+  current_context: |
+    Massive 2024-2026 capex buildout (~$200B+/yr from hyperscalers). NVDA, AVGO,
+    SMCI, VRT up 100-300% over 2024-2025. Risk: cloud capex digestion cycle
+    could pull-in late-2026 to 2027. Sector is one of the most crowded long
+    positions in institutional portfolios. New bullish theses should account
+    for stretched valuations; contrarian (short) theses should weigh genuine
+    secular demand against the bubble framing.
+  beneficiaries:
+    - {ticker: NVDA, name: "Nvidia",            mechanism: "dominant AI training/inference GPUs",        confidence: 0.95}
+    - {ticker: AVGO, name: "Broadcom",          mechanism: "custom AI ASICs + networking silicon",       confidence: 0.85}
+    - {ticker: AMD,  name: "AMD",               mechanism: "MI-series AI GPUs",                           confidence: 0.75}
+    - {ticker: ARM,  name: "Arm Holdings",      mechanism: "CPU IP for AI accelerators",                  confidence: 0.70}
+    - {ticker: SMCI, name: "Super Micro",       mechanism: "AI server systems",                           confidence: 0.85}
+    - {ticker: VRT,  name: "Vertiv",            mechanism: "data center cooling / power",                 confidence: 0.85}
+
+cloud:
+  keywords: ["cloud computing", "public cloud", "hyperscaler", "hyperscalers", "IaaS", "PaaS", "SaaS infrastructure"]
+  beneficiaries:
+    - {ticker: MSFT,  name: "Microsoft",     mechanism: "Azure (#2 hyperscaler)",                confidence: 0.85}
+    - {ticker: AMZN,  name: "Amazon",        mechanism: "AWS (#1 hyperscaler)",                  confidence: 0.85}
+    - {ticker: GOOGL, name: "Alphabet",      mechanism: "Google Cloud (#3 hyperscaler)",         confidence: 0.70}
+    - {ticker: ORCL,  name: "Oracle",        mechanism: "OCI + DB cloud + recent AI infra deals", confidence: 0.75}
+    - {ticker: CRM,   name: "Salesforce",    mechanism: "SaaS CRM cloud",                         confidence: 0.65}
+
+cybersecurity:
+  keywords: [cybersecurity, "cyber security", "endpoint security", firewall, SIEM, "zero trust", ransomware]
+  beneficiaries:
+    - {ticker: CRWD, name: "CrowdStrike",       mechanism: "endpoint detection / response",         confidence: 0.95}
+    - {ticker: PANW, name: "Palo Alto Networks", mechanism: "platform: firewall + cloud + endpoint", confidence: 0.95}
+    - {ticker: ZS,   name: "Zscaler",           mechanism: "zero-trust network access",             confidence: 0.90}
+    - {ticker: FTNT, name: "Fortinet",          mechanism: "firewall / SASE",                       confidence: 0.85}
+    - {ticker: OKTA, name: "Okta",              mechanism: "identity / SSO",                        confidence: 0.80}
+    - {ticker: S,    name: "SentinelOne",       mechanism: "endpoint detection / response",         confidence: 0.85}
+
+banks_large:
+  keywords: ["large banks", "big banks", "money center banks", "investment bank", "investment banks", "global systemically important bank"]
+  current_context: |
+    Net interest margin (NIM) cycle peaked late 2023 and has been gradually
+    compressing through 2024-2026 as deposit costs catch up with lagged loan
+    repricing. Capital markets fees recovering off 2022-2023 lows. Stress-test
+    results passed broadly. Trump-era deregulation expectations partially
+    priced. Default rates ticking up but contained vs. recession scenarios.
+  beneficiaries:
+    - {ticker: JPM, name: "JPMorgan Chase",      mechanism: "largest US universal bank",     confidence: 0.95}
+    - {ticker: BAC, name: "Bank of America",     mechanism: "consumer + investment banking", confidence: 0.95}
+    - {ticker: C,   name: "Citigroup",           mechanism: "global investment + treasury",  confidence: 0.90}
+    - {ticker: WFC, name: "Wells Fargo",         mechanism: "consumer / commercial banking", confidence: 0.90}
+    - {ticker: GS,  name: "Goldman Sachs",       mechanism: "investment banking / trading",  confidence: 0.95}
+    - {ticker: MS,  name: "Morgan Stanley",      mechanism: "wealth management + IB",        confidence: 0.95}
+
+defense:
+  keywords: [defense, "defense contractor", "defense spending", military, weapons, missile, "military aircraft"]
+  beneficiaries:
+    - {ticker: LMT, name: "Lockheed Martin",     mechanism: "F-35, missiles, Sikorsky",        confidence: 0.95}
+    - {ticker: RTX, name: "RTX (Raytheon)",      mechanism: "missiles, engines, sensors",       confidence: 0.95}
+    - {ticker: NOC, name: "Northrop Grumman",    mechanism: "B-21, ICBM, space",                confidence: 0.95}
+    - {ticker: GD,  name: "General Dynamics",    mechanism: "subs, tanks, business jets",       confidence: 0.90}
+    - {ticker: BA,  name: "Boeing",              mechanism: "defense + commercial aircraft",    confidence: 0.55}
+    - {ticker: HII, name: "Huntington Ingalls",  mechanism: "naval shipbuilding (carriers, subs)", confidence: 0.95}
+
+pharma_large:
+  keywords: ["large pharma", "big pharma", "pharmaceutical", pharmaceuticals]
+  beneficiaries:
+    - {ticker: PFE,  name: "Pfizer",             mechanism: "broad-line large pharma",       confidence: 0.95}
+    - {ticker: MRK,  name: "Merck",              mechanism: "Keytruda + vaccines",           confidence: 0.95}
+    - {ticker: JNJ,  name: "Johnson & Johnson",  mechanism: "pharma + medtech",              confidence: 0.85}
+    - {ticker: LLY,  name: "Eli Lilly",          mechanism: "GLP-1 + diabetes / oncology",   confidence: 0.95}
+    - {ticker: ABBV, name: "AbbVie",             mechanism: "Humira / Skyrizi / Rinvoq",     confidence: 0.95}
+    - {ticker: BMY,  name: "Bristol Myers Squibb", mechanism: "oncology + cardiovascular",   confidence: 0.95}
+
+glp1:
+  keywords: [GLP-1, "GLP1", "glucagon-like peptide", semaglutide, tirzepatide, ozempic, wegovy, mounjaro, zepbound]
+  beneficiaries:
+    - {ticker: LLY, name: "Eli Lilly",  mechanism: "tirzepatide (Mounjaro / Zepbound)",        confidence: 0.95}
+    - {ticker: NVO, name: "Novo Nordisk", mechanism: "semaglutide (Ozempic / Wegovy)",         confidence: 0.95}
+    - {ticker: AMGN, name: "Amgen",     mechanism: "MariTide GLP-1/GIP candidate",             confidence: 0.50}
+
+oil_majors:
+  keywords: ["oil major", "oil majors", "integrated oil", "supermajor", "supermajors", "oil company", "oil companies"]
+  beneficiaries:
+    - {ticker: XOM, name: "ExxonMobil",       mechanism: "largest US integrated oil",   confidence: 0.95}
+    - {ticker: CVX, name: "Chevron",          mechanism: "US integrated oil",           confidence: 0.95}
+    - {ticker: COP, name: "ConocoPhillips",   mechanism: "US E&P pure-play",            confidence: 0.85}
+    - {ticker: OXY, name: "Occidental",       mechanism: "Permian E&P + petchem",       confidence: 0.85}
+    - {ticker: MPC, name: "Marathon Petroleum", mechanism: "US refining",                confidence: 0.80}
+    - {ticker: VLO, name: "Valero",           mechanism: "US refining",                  confidence: 0.80}
+    - {ticker: PSX, name: "Phillips 66",      mechanism: "US refining + midstream",     confidence: 0.80}
+
+nuclear:
+  keywords: [nuclear, "nuclear power", "uranium", "small modular reactor", SMR, "nuclear fuel"]
+  current_context: |
+    Revival narrative gained substantial traction 2024-2026, driven by AI
+    data-center power demand + decarbonization mandates. CEG and VST up 100%+
+    on hyperscaler PPA deals. SMR pure-plays (SMR/NuScale, BWXT) extended on
+    speculative demand. Uranium spot prices firmly off cycle lows. Late-cycle
+    dynamics: bullish theses should account for execution risk on SMR timelines
+    (most won't be online until 2030+).
+  beneficiaries:
+    - {ticker: CCJ,  name: "Cameco",                  mechanism: "uranium miner (#2 globally)", confidence: 0.95}
+    - {ticker: CEG,  name: "Constellation Energy",    mechanism: "largest US nuclear utility",  confidence: 0.95}
+    - {ticker: VST,  name: "Vistra",                  mechanism: "nuclear + gas generation",    confidence: 0.80}
+    - {ticker: BWXT, name: "BWX Technologies",        mechanism: "naval reactors + SMR",        confidence: 0.85}
+    - {ticker: SMR,  name: "NuScale Power",           mechanism: "SMR pure-play",               confidence: 0.95}
+
+gold_miners:
+  keywords: ["gold miner", "gold miners", "gold mining", "gold producer"]
+  beneficiaries:
+    - {ticker: NEM,  name: "Newmont",          mechanism: "largest gold miner globally",   confidence: 0.95}
+    - {ticker: GOLD, name: "Barrick Gold",     mechanism: "#2 gold miner globally",        confidence: 0.95}
+    - {ticker: AEM,  name: "Agnico Eagle",     mechanism: "Canadian gold miner",           confidence: 0.90}
+    - {ticker: AU,   name: "AngloGold Ashanti", mechanism: "South African / global gold",  confidence: 0.90}
+    - {ticker: KGC,  name: "Kinross Gold",     mechanism: "global mid-tier gold miner",    confidence: 0.85}
+
+healthcare_insurance:
+  keywords: ["health insurance", "managed care", "medicare advantage", "medicaid", "Affordable Care Act", "ACA", "health plan", "PBM", "pharmacy benefit"]
+  current_context: |
+    Sector under sustained pressure 2024-2026 from CMS Medicare Advantage rate
+    cuts. UNH facing active DOJ antitrust probe (escalated 2024). Multi-quarter
+    EPS misses across UNH/HUM/ELV. Long-only momentum strategies have lost
+    40-60% in this sector since 2024-Q3. Be skeptical of bullish theses unless
+    the mechanism explicitly addresses these regulatory + reimbursement headwinds.
+  beneficiaries:
+    - {ticker: UNH, name: "UnitedHealth",     mechanism: "largest US managed care + Optum PBM",         confidence: 0.95}
+    - {ticker: ELV, name: "Elevance Health",  mechanism: "Anthem Blue Cross plans + CarelonRx",          confidence: 0.90}
+    - {ticker: CI,  name: "Cigna",            mechanism: "Evernorth PBM + commercial insurance",         confidence: 0.85}
+    - {ticker: HUM, name: "Humana",           mechanism: "concentrated in Medicare Advantage",            confidence: 0.95}
+    - {ticker: CVS, name: "CVS Health",       mechanism: "Aetna insurance + Caremark PBM + retail Rx",   confidence: 0.85}
+    - {ticker: MOH, name: "Molina Healthcare", mechanism: "Medicaid managed care pure-play",             confidence: 0.95}
+    - {ticker: CNC, name: "Centene",          mechanism: "Medicaid + ACA marketplace plans",              confidence: 0.95}
+
+biotech_small:
+  keywords: ["gene therapy", "mRNA", "messenger RNA", "CRISPR", "gene editing", "cell therapy", "biotech", "small biotech", "clinical trial"]
+  beneficiaries:
+    - {ticker: MRNA, name: "Moderna",          mechanism: "mRNA platform (vaccines + oncology)",         confidence: 0.90}
+    - {ticker: BNTX, name: "BioNTech",         mechanism: "mRNA platform partner of Pfizer + oncology",  confidence: 0.90}
+    - {ticker: BEAM, name: "Beam Therapeutics", mechanism: "base editing CRISPR pure-play",              confidence: 0.95}
+    - {ticker: CRSP, name: "CRISPR Therapeutics", mechanism: "CRISPR-Cas9 gene editing (Casgevy)",       confidence: 0.95}
+    - {ticker: NTLA, name: "Intellia",         mechanism: "in vivo CRISPR therapeutics",                  confidence: 0.95}
+    - {ticker: EDIT, name: "Editas Medicine",  mechanism: "CRISPR gene editing",                          confidence: 0.90}
+    - {ticker: VRTX, name: "Vertex",           mechanism: "Casgevy partner with CRSP + CF mid-cap pipeline", confidence: 0.65}
+
+homebuilders:
+  keywords: ["homebuilder", "homebuilders", "home building", "single-family housing", "housing starts", "new home construction"]
+  current_context: |
+    Rate-sensitive sector. Mortgage rates persistently elevated (6-7% range
+    through 2024-2026), constraining housing demand. Inventory backlog widening
+    in many MSAs. Donchian breakout / momentum strategies have failed in most
+    walk-forward windows since 2024-Q3. Bullish theses should explicitly account
+    for the rate environment.
+  beneficiaries:
+    - {ticker: DHI,  name: "D.R. Horton",     mechanism: "largest US homebuilder by volume",            confidence: 0.95}
+    - {ticker: LEN,  name: "Lennar",          mechanism: "#2 US homebuilder",                            confidence: 0.95}
+    - {ticker: NVR,  name: "NVR",             mechanism: "land-light homebuilder, mid-Atlantic",         confidence: 0.95}
+    - {ticker: PHM,  name: "PulteGroup",      mechanism: "national homebuilder",                         confidence: 0.95}
+    - {ticker: TOL,  name: "Toll Brothers",   mechanism: "luxury homebuilder",                           confidence: 0.95}
+    - {ticker: KBH,  name: "KB Home",         mechanism: "entry-level homebuilder",                      confidence: 0.95}
+
+reits_data_center:
+  keywords: ["data center", "data centers", "data-center REIT", "colocation", "interconnection", "AI data center"]
+  beneficiaries:
+    - {ticker: DLR,  name: "Digital Realty",  mechanism: "largest data center REIT globally",            confidence: 0.95}
+    - {ticker: EQIX, name: "Equinix",         mechanism: "interconnection + colocation leader",          confidence: 0.95}
+    - {ticker: AMT,  name: "American Tower",  mechanism: "tower REIT + edge data center exposure",       confidence: 0.55}
+    - {ticker: IRM,  name: "Iron Mountain",   mechanism: "records mgmt pivoting into data center",       confidence: 0.50}
+
+payments:
+  keywords: ["payment processor", "card network", "interchange", "credit card", "debit card", "merchant acquirer", "buy now pay later", "BNPL"]
+  beneficiaries:
+    - {ticker: V,    name: "Visa",            mechanism: "global card network (#1)",                     confidence: 0.95}
+    - {ticker: MA,   name: "Mastercard",      mechanism: "global card network (#2)",                     confidence: 0.95}
+    - {ticker: AXP,  name: "American Express", mechanism: "closed-loop network + premium card",          confidence: 0.85}
+    - {ticker: PYPL, name: "PayPal",          mechanism: "online payments + Venmo",                       confidence: 0.85}
+    - {ticker: SQ,   name: "Block",           mechanism: "Square merchant + Cash App + BNPL",             confidence: 0.85}
+    - {ticker: AFRM, name: "Affirm",          mechanism: "BNPL pure-play",                                confidence: 0.95}
+
+regional_banks:
+  keywords: ["regional bank", "regional banks", "community bank", "mid-sized bank"]
+  current_context: |
+    Post-2023 (SVB / First Republic / Signature) crisis aftermath continues
+    through 2024-2026. Regulatory scrutiny elevated. Commercial real estate
+    exposure remains a persistent overhang, especially office. NIM compression
+    more acute than at money-center peers. Capital raises and dividend cuts
+    common. Some names under continued idiosyncratic stress.
+  beneficiaries:
+    - {ticker: USB,  name: "U.S. Bancorp",    mechanism: "largest regional / super-regional bank",       confidence: 0.95}
+    - {ticker: PNC,  name: "PNC Financial",   mechanism: "super-regional bank",                          confidence: 0.95}
+    - {ticker: TFC,  name: "Truist",          mechanism: "Southeast super-regional bank",                confidence: 0.95}
+    - {ticker: RF,   name: "Regions Financial", mechanism: "Southeast regional",                          confidence: 0.95}
+    - {ticker: KEY,  name: "KeyCorp",         mechanism: "Midwest/Northeast regional",                   confidence: 0.95}
+    - {ticker: CFG,  name: "Citizens Financial", mechanism: "Northeast regional",                         confidence: 0.95}
+    - {ticker: FITB, name: "Fifth Third",     mechanism: "Midwest regional",                             confidence: 0.95}
+
+insurance_pc:
+  keywords: ["property and casualty insurance", "P&C insurance", "homeowner insurance", "auto insurance", "reinsurance", "catastrophe bond"]
+  beneficiaries:
+    - {ticker: PGR,  name: "Progressive",     mechanism: "auto insurance leader",                        confidence: 0.95}
+    - {ticker: ALL,  name: "Allstate",        mechanism: "auto + homeowners",                            confidence: 0.95}
+    - {ticker: TRV,  name: "Travelers",       mechanism: "commercial + personal P&C",                    confidence: 0.95}
+    - {ticker: CB,   name: "Chubb",           mechanism: "global P&C + high-net-worth",                  confidence: 0.95}
+    - {ticker: AIG,  name: "AIG",             mechanism: "global commercial P&C",                        confidence: 0.90}
+    - {ticker: HIG,  name: "Hartford Financial", mechanism: "commercial P&C + group benefits",            confidence: 0.90}
+
+crypto_exposure:
+  keywords: ["cryptocurrency", "crypto", "bitcoin", "ethereum", "blockchain", "stablecoin", "spot ETF", "digital asset"]
+  current_context: |
+    BTC spot ETFs approved Jan 2024 (~$50B+ first-year flows); ETH spot ETFs
+    approved mid-2024. Trump administration crypto-friendly stance through 2026.
+    SEC posture meaningfully looser. BTC mining economics (MARA, RIOT, CLSK)
+    strongly tied to BTC price; mining hash rate at all-time highs implies
+    margin compression even in bullish BTC regimes. MSTR / Strategy uses
+    BTC-treasury leverage strategy (high beta to BTC).
+  beneficiaries:
+    - {ticker: COIN, name: "Coinbase",        mechanism: "largest US regulated crypto exchange",         confidence: 0.95}
+    - {ticker: MSTR, name: "Strategy",        mechanism: "balance-sheet bitcoin treasury holder",         confidence: 0.95}
+    - {ticker: MARA, name: "Marathon Digital", mechanism: "BTC mining pure-play",                          confidence: 0.95}
+    - {ticker: RIOT, name: "Riot Platforms",  mechanism: "BTC mining pure-play",                          confidence: 0.95}
+    - {ticker: CLSK, name: "CleanSpark",      mechanism: "BTC mining (clean energy)",                     confidence: 0.95}
+    - {ticker: HOOD, name: "Robinhood",       mechanism: "retail brokerage with major crypto trading",    confidence: 0.65}
+
+steel:
+  keywords: ["steel", "steelmaker", "steel tariff", "steel imports", "Section 232"]
+  beneficiaries:
+    - {ticker: NUE,  name: "Nucor",           mechanism: "largest US steelmaker (mini-mill)",            confidence: 0.95}
+    - {ticker: STLD, name: "Steel Dynamics",  mechanism: "US mini-mill steel producer",                  confidence: 0.95}
+    - {ticker: CLF,  name: "Cleveland-Cliffs", mechanism: "vertically integrated US flat-rolled steel",   confidence: 0.95}
+    - {ticker: X,    name: "U.S. Steel",      mechanism: "US integrated steelmaker",                     confidence: 0.95}
+
+aluminum:
+  keywords: ["aluminum", "aluminium", "aluminum tariff", "smelter"]
+  beneficiaries:
+    - {ticker: AA,   name: "Alcoa",           mechanism: "US-headquartered aluminum producer",           confidence: 0.95}
+    - {ticker: CENX, name: "Century Aluminum", mechanism: "US primary aluminum smelter",                  confidence: 0.95}
+    - {ticker: KALU, name: "Kaiser Aluminum", mechanism: "fabricated aluminum products",                  confidence: 0.85}
+
+copper:
+  keywords: ["copper", "copper miner", "copper demand", "electrification"]
+  beneficiaries:
+    - {ticker: FCX,  name: "Freeport-McMoRan", mechanism: "largest US copper miner",                      confidence: 0.95}
+    - {ticker: SCCO, name: "Southern Copper", mechanism: "Mexico/Peru copper pure-play",                  confidence: 0.95}
+    - {ticker: BHP,  name: "BHP",             mechanism: "global diversified miner with major copper",   confidence: 0.65}
+    - {ticker: RIO,  name: "Rio Tinto",       mechanism: "global diversified miner with copper exposure", confidence: 0.55}
+    - {ticker: TECK, name: "Teck Resources",  mechanism: "Canadian copper + zinc producer",              confidence: 0.85}
+
+rare_earths:
+  keywords: ["rare earth", "rare earths", "rare earth elements", "REE", "lanthanide", "neodymium", "samarium"]
+  beneficiaries:
+    - {ticker: MP,   name: "MP Materials",    mechanism: "only operating US rare earth mine (Mountain Pass)", confidence: 0.95}
+    - {ticker: USAR, name: "USA Rare Earth",  mechanism: "rare earth + critical minerals development",    confidence: 0.85}
+    # LYC (Lynas, ASX-listed) removed — yfinance can't fetch the bare 'LYC' ticker.
+
+natgas:
+  keywords: ["natural gas", "LNG", "liquefied natural gas", "shale gas", "Permian gas", "Marcellus", "Haynesville"]
+  beneficiaries:
+    - {ticker: LNG,  name: "Cheniere Energy", mechanism: "largest US LNG exporter",                       confidence: 0.95}
+    - {ticker: EQT,  name: "EQT Corp",        mechanism: "largest US natgas producer (Appalachia)",       confidence: 0.95}
+    - {ticker: AR,   name: "Antero Resources", mechanism: "Appalachia natgas + NGL",                       confidence: 0.95}
+    - {ticker: RRC,  name: "Range Resources", mechanism: "Marcellus natgas",                              confidence: 0.95}
+    - {ticker: CTRA, name: "Coterra Energy",  mechanism: "Permian + Marcellus natgas/oil",                confidence: 0.85}
+
+utilities:
+  keywords: ["utility", "utilities", "electric utility", "regulated utility", "rate base", "rate case", "renewables buildout"]
+  beneficiaries:
+    - {ticker: NEE,  name: "NextEra Energy",  mechanism: "largest US utility + dominant renewables developer", confidence: 0.95}
+    - {ticker: DUK,  name: "Duke Energy",     mechanism: "Southeast regulated utility",                   confidence: 0.95}
+    - {ticker: SO,   name: "Southern Company", mechanism: "Southeast regulated utility (incl. Vogtle nuclear)", confidence: 0.95}
+    - {ticker: AEP,  name: "American Electric Power", mechanism: "Midwest regulated transmission/utility", confidence: 0.95}
+    - {ticker: D,    name: "Dominion Energy", mechanism: "Virginia regulated utility (data center load)", confidence: 0.95}
+    - {ticker: XEL,  name: "Xcel Energy",     mechanism: "Midwest regulated utility w/ wind",             confidence: 0.95}
+
+cannabis:
+  keywords: ["cannabis", "marijuana", "weed", "THC", "rescheduling", "Schedule III", "SAFE Banking"]
+  current_context: |
+    Federal rescheduling and SAFE Banking have stalled multiple times since
+    2022. Most cannabis equities lost 70-90% over 2022-2024. Bullish theses on
+    federal reform should account for the historical pattern of legislative
+    disappointment — assigning P(event) > 0.20 on a typical bill is likely
+    overconfident given the base rate.
+  beneficiaries:
+    - {ticker: TLRY, name: "Tilray Brands",   mechanism: "Canadian-listed multi-state cannabis",         confidence: 0.90}
+    - {ticker: CGC,  name: "Canopy Growth",   mechanism: "Canadian-listed cannabis with US optionality", confidence: 0.90}
+    - {ticker: ACB,  name: "Aurora Cannabis", mechanism: "Canadian cannabis producer",                   confidence: 0.85}
+    - {ticker: GTBIF, name: "Green Thumb",    mechanism: "US multi-state operator (OTC)",                 confidence: 0.95}
+    - {ticker: TCNNF, name: "Trulieve",       mechanism: "US multi-state operator (OTC)",                 confidence: 0.95}
+
+streaming_media:
+  keywords: ["streaming", "streaming service", "subscription video", "SVOD", "Netflix"]
+  beneficiaries:
+    - {ticker: NFLX, name: "Netflix",         mechanism: "largest pure-play streamer",                   confidence: 0.95}
+    - {ticker: DIS,  name: "Disney",          mechanism: "Disney+, Hulu, ESPN+",                          confidence: 0.75}
+    - {ticker: WBD,  name: "Warner Bros. Discovery", mechanism: "Max + linear TV",                         confidence: 0.85}
+    - {ticker: PARA, name: "Paramount",       mechanism: "Paramount+ + linear TV",                        confidence: 0.85}
+
+social_media:
+  keywords: ["social media", "social platform", "section 230", "online ad", "online advertising"]
+  beneficiaries:
+    - {ticker: META, name: "Meta",            mechanism: "Facebook/Instagram/WhatsApp/Threads",           confidence: 0.95}
+    - {ticker: SNAP, name: "Snap",            mechanism: "Snapchat",                                      confidence: 0.95}
+    - {ticker: PINS, name: "Pinterest",       mechanism: "discovery-focused social ad platform",          confidence: 0.95}
+    - {ticker: RDDT, name: "Reddit",          mechanism: "Reddit ad platform",                            confidence: 0.95}
+    - {ticker: GOOGL, name: "Alphabet",       mechanism: "YouTube + search ads",                          confidence: 0.55}
+
+airlines:
+  keywords: ["airline", "airlines", "aviation", "commercial aviation", "passenger airline"]
+  beneficiaries:
+    - {ticker: DAL,  name: "Delta Air Lines", mechanism: "largest US legacy carrier by revenue",         confidence: 0.95}
+    - {ticker: UAL,  name: "United Airlines", mechanism: "US legacy carrier with global network",        confidence: 0.95}
+    - {ticker: AAL,  name: "American Airlines", mechanism: "US legacy carrier",                            confidence: 0.95}
+    - {ticker: LUV,  name: "Southwest",       mechanism: "largest US low-cost carrier",                  confidence: 0.95}
+    - {ticker: ALK,  name: "Alaska Air",      mechanism: "West Coast carrier (incl. Hawaiian)",          confidence: 0.95}
+    - {ticker: JBLU, name: "JetBlue",         mechanism: "Northeast/Florida focused",                    confidence: 0.95}
+
+rails_logistics:
+  keywords: ["railroad", "railroads", "rail freight", "intermodal", "trucking", "freight transportation", "less-than-truckload", "LTL"]
+  beneficiaries:
+    - {ticker: UNP,  name: "Union Pacific",   mechanism: "largest US Western railroad",                  confidence: 0.95}
+    - {ticker: CSX,  name: "CSX",             mechanism: "Eastern US railroad",                          confidence: 0.95}
+    - {ticker: NSC,  name: "Norfolk Southern", mechanism: "Eastern US railroad",                          confidence: 0.95}
+    - {ticker: JBHT, name: "J.B. Hunt",       mechanism: "intermodal + dedicated trucking",              confidence: 0.95}
+    - {ticker: ODFL, name: "Old Dominion",    mechanism: "LTL trucking pure-play",                       confidence: 0.95}
+    - {ticker: XPO,  name: "XPO",             mechanism: "LTL trucking",                                  confidence: 0.95}
+
+food_staples:
+  keywords: ["consumer staples", "packaged food", "beverages", "soft drink", "grocery"]
+  beneficiaries:
+    - {ticker: KO,   name: "Coca-Cola",       mechanism: "global beverage syrup + branded distribution", confidence: 0.95}
+    - {ticker: PEP,  name: "PepsiCo",         mechanism: "beverages + Frito-Lay snacks",                 confidence: 0.95}
+    - {ticker: KHC,  name: "Kraft Heinz",     mechanism: "packaged food",                                confidence: 0.95}
+    - {ticker: GIS,  name: "General Mills",   mechanism: "cereal + packaged food",                       confidence: 0.95}
+    - {ticker: MDLZ, name: "Mondelez",        mechanism: "global snacks (Oreo, Cadbury)",                confidence: 0.95}
+    - {ticker: CAG,  name: "Conagra Brands",  mechanism: "frozen + shelf-stable packaged food",          confidence: 0.95}
+    - {ticker: HSY,  name: "Hershey",         mechanism: "confectionery + salty snacks",                 confidence: 0.95}
+
+tobacco:
+  keywords: ["tobacco", "cigarette", "vaping", "e-cigarette", "nicotine", "FDA tobacco"]
+  beneficiaries:
+    - {ticker: MO,   name: "Altria",          mechanism: "US tobacco (Marlboro) + on! nicotine pouches", confidence: 0.95}
+    - {ticker: PM,   name: "Philip Morris International", mechanism: "non-US tobacco + IQOS + Zyn",        confidence: 0.95}
+    - {ticker: BTI,  name: "British American Tobacco", mechanism: "global tobacco + Vuse vapor",             confidence: 0.95}
+
+agriculture_equip:
+  keywords: ["farm equipment", "agricultural equipment", "tractor", "combine harvester", "precision agriculture"]
+  beneficiaries:
+    - {ticker: DE,   name: "Deere",           mechanism: "largest farm equipment + precision ag",        confidence: 0.95}
+    - {ticker: AGCO, name: "AGCO",            mechanism: "Massey Ferguson, Fendt, Challenger brands",    confidence: 0.95}
+    - {ticker: CNH,  name: "CNH Industrial",  mechanism: "Case IH, New Holland brands (NYSE: CNH after 2024 listing change)", confidence: 0.95}
+
+telecom:
+  keywords: ["telecom", "telecommunications", "wireless carrier", "5G spectrum", "spectrum auction", "broadband"]
+  beneficiaries:
+    - {ticker: T,    name: "AT&T",            mechanism: "wireless + fiber broadband",                   confidence: 0.95}
+    - {ticker: VZ,   name: "Verizon",         mechanism: "wireless leader + fiber",                       confidence: 0.95}
+    - {ticker: TMUS, name: "T-Mobile",        mechanism: "wireless (post-Sprint merger)",                 confidence: 0.95}
+
+waste:
+  keywords: ["waste management", "solid waste", "recycling", "landfill", "EPA waste"]
+  beneficiaries:
+    - {ticker: WM,   name: "Waste Management", mechanism: "largest US waste collection + landfill",        confidence: 0.95}
+    - {ticker: RSG,  name: "Republic Services", mechanism: "#2 US waste collection + landfill",             confidence: 0.95}
+    - {ticker: WCN,  name: "Waste Connections", mechanism: "#3 US waste, secondary markets",                confidence: 0.95}
+
+defense_drones_space:
+  keywords: ["drone", "drones", "unmanned aerial", "UAV", "loitering munition", "small satellite", "smallsat", "launch vehicle"]
+  beneficiaries:
+    - {ticker: KTOS, name: "Kratos",          mechanism: "drones + tactical satellite ground systems",   confidence: 0.95}
+    - {ticker: AVAV, name: "AeroVironment",   mechanism: "tactical drones (Switchblade, Puma)",          confidence: 0.95}
+    - {ticker: RKLB, name: "Rocket Lab",      mechanism: "small launch (Electron) + spacecraft",          confidence: 0.95}
+    - {ticker: LUNR, name: "Intuitive Machines", mechanism: "lunar lander + space services",                confidence: 0.95}
+    - {ticker: PL,   name: "Planet Labs",     mechanism: "earth observation smallsat constellation",     confidence: 0.95}
